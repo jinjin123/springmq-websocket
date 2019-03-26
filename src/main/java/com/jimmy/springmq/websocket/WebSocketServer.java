@@ -32,7 +32,19 @@ public class WebSocketServer {
 
     @OnClose
     public void onClose(@PathParam("client")String client,Session s){
-        clients.remove(client);
+        try{
+            logger.info("关闭WebSocket,id=" + client);
+            try{
+                clients.remove(client);
+                if(this.session != null){
+                    this.session.close();
+                }
+            }catch (IllegalStateException e){
+                logger.info("WebSocket端断开连接");
+            }
+        }catch (Exception e){
+            logger.error("WebSocket关闭连接出错",e);
+        }
     }
 
     public  void send(String msg){
