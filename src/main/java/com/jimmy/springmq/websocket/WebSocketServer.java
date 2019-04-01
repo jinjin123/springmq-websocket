@@ -1,8 +1,11 @@
 package com.jimmy.springmq.websocket;
 
 import java.io.IOException;
+
+import com.jimmy.springmq.service.RedisService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
@@ -17,6 +20,9 @@ import javax.websocket.server.ServerEndpoint;
 @ServerEndpoint("/ws/{client}")
 @Component
 public class WebSocketServer {
+    @Autowired
+    private RedisService redisService;
+
     private Session session;
     private static final Logger logger = LoggerFactory.getLogger(WebSocketServer.class);
     public static CopyOnWriteArraySet<WebSocketServer> webSockets = new CopyOnWriteArraySet<WebSocketServer>();
@@ -49,8 +55,12 @@ public class WebSocketServer {
 
     public  void send(String msg){
         try {
+            System.out.println(this.session);
+            if(this.session == null){
+                redisService.lpush("c01",msg);
+            }
             this.session.getBasicRemote().sendText(msg);
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
