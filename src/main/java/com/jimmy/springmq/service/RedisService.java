@@ -15,6 +15,8 @@ public interface RedisService {
 
     long lpush(String key, Object obj) throws Exception;
 
+    List lrange (String key,long start, long end) throws Exception;
+
     long rpush(String key, Object obj) throws Exception;
 
     void hmset(String key, Object obj) throws Exception;

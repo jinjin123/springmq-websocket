@@ -201,4 +201,22 @@ public class RedisServiceImpl implements RedisService {
         });
         return result;
     }
+
+    @Override
+    public List lrange(String key, long start, long end) throws Exception {
+        Assert.hasText(key,"Key is not empty.");
+
+        List<String> dataList = new ArrayList<String>();
+        return redisTemplate.execute(new RedisCallback<List>() {
+            @Override
+            public List doInRedis(RedisConnection connection) throws DataAccessException {
+                RedisSerializer<String> serializer = redisTemplate.getStringSerializer();
+                List<byte[]> res  = connection.lRange(serializer.serialize(key), start, end);
+                for(byte[] r :res){
+                    dataList.add(new String(serializer.deserialize(r)));
+                }
+                return dataList;
+            }
+        });
+    }
 }

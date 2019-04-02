@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -42,6 +43,7 @@ public class WebSocketServer {
             logger.info("关闭WebSocket,id=" + client);
             try{
                 clients.remove(client);
+                webSockets.remove(this);
                 if(this.session != null){
                     this.session.close();
                 }
@@ -55,10 +57,6 @@ public class WebSocketServer {
 
     public  void send(String msg){
         try {
-            System.out.println(this.session);
-            if(this.session == null){
-                redisService.lpush("c01",msg);
-            }
             this.session.getBasicRemote().sendText(msg);
         } catch (Exception e) {
             e.printStackTrace();

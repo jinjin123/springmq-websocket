@@ -7,6 +7,8 @@ import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 import static com.jimmy.springmq.websocket.WebSocketServer.*;
 
 
@@ -25,13 +27,23 @@ public class Receiver {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
-
-        for(WebSocketServer webSocketServer : webSockets){
-            try{
-                webSocketServer.send(msg);
-            }catch (Exception e){
-                e.printStackTrace();
+        }else {
+            for (WebSocketServer webSocketServer : webSockets) {
+                try {
+                    List<String> dataList = redisService.lrange("c01",0,-1);
+                    String newMsg = new String();
+                    if(dataList.size()!=0){
+                        for(String newMg: dataList){
+                            newMsg += newMg + "|";
+                        }
+                        webSocketServer.send(newMsg);
+                        redisService.del("c01");
+                    }else{
+                        webSocketServer.send(msg);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
